@@ -1,0 +1,104 @@
+# - name: Upgrade ubuntu to the latest release
+#   hosts: all
+#   tasks: 
+#     - name: Perform dist upgrade | packages
+#       ansible.builtin.apt:
+#         upgrade: dist
+#         update_cache: yes
+#       notify:
+#         - reboot-server
+#     - name: Upgrade dist to the latest release
+#       command: do-release-upgrade -f DistUpgradeViewNonInteractive
+#       register: dist_upgrade_out
+#       when: >
+#         (ansible_distribution == "Ubuntu" and
+#         ansible_distribution_version <= "20.04")
+#       notify:
+#         - reboot-server
+#     - debug: output=dist_upgrade_out.stdout_lines
+#       when: >
+#         (ansible_distribution == "Ubuntu" and
+#         ansible_distribution_version <= "20.04")
+#   handlers:
+#     - name: reboot-server
+#       ansible.builtin.reboot:
+
+
+- name: Create user
+  hosts: all
+  become: true
+  tasks:
+    - name: Create user iresh
+      user:
+        name: iresh
+        groups: 'sudo'
+        append: true
+        state: present
+        shell: /bin/bash
+        generate_ssh_key: yes
+        ssh_key_bits: 4096
+        ssh_key_file: .ssh/id_rsa
+        password: "{{ 'admin' |  password_hash('sha512')}}"
+    - name: Copy root authorized_keys
+      copy:
+        remote_src: yes
+        src: /root/.ssh/authorized_keys
+        dest: /home/iresh/.ssh/authorized_keys
+        owner: iresh
+        group: iresh
+        mode: '600'
+
+- name: Install packages
+  hosts: all
+  tags:
+    - packages
+  pre_tasks:
+    - name: Update package cache
+      apt:
+        name: '*'
+        state: latest
+  tasks:
+    - name: Miscellaneous packages
+      apt:
+        name:
+          - ruby-rubygems
+          - aria2
+          - rclone
+    - name: Mkpasswd gem package
+      community.general.gem:
+        name: mkpasswd
+        state: latest
+        user_install: no
+
+- name: Copy config files
+  hosts: all
+  tasks:
+    - name: Copy rlcone config
+      block:
+        - name: Ensure .config directory exists
+          file:
+            path: /home/iresh/.config/rclone
+            state: directory
+            owner: iresh
+            group: iresh
+        - name: Copy rclone config file
+          copy:
+            src: ~/.config/rclone/rclone.conf
+            dest: /home/iresh/.config/rclone/rclone.conf
+            owner: iresh
+            group: iresh
+            mode: '660'
+      tags:
+        - config-files
+    - name: Copy tmux config
+      copy:
+        src: ~/.tmux.conf
+        dest: /home/iresh/.tmux.conf
+        owner: iresh
+        group: iresh
+        mode: '660'
+
+- name: Ansible KVM Role
+  hosts: all
+  roles:
+    - role: ansible-kvm

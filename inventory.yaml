@@ -1,0 +1,6 @@
+---
+all:
+  hosts:
+    virt_host:
+      ansible_host: '52.118.146.25'
+      ansible_user: root
