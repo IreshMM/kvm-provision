@@ -115,6 +115,14 @@
             state: link
             owner: iresh
             group: iresh
+    - name: Set shell vi mode
+      ansible.builtin.lineinfile:
+        path: ~/.bashrc
+        line: set -o vi
+    - name: Set default EDITOR
+      ansible.builtin.lineinfile:
+        path: ~/.profile
+        line: export EDITOR=vim
 
 - name: Ansible KVM Role
   hosts: all
