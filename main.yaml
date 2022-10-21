@@ -64,6 +64,7 @@
           - ruby-rubygems
           - aria2
           - rclone
+          - tree
     - name: Mkpasswd gem package
       community.general.gem:
         name: mkpasswd
@@ -72,6 +73,10 @@
 
 - name: Copy config files
   hosts: all
+  become: yes
+  become_user: iresh
+  tags:
+    - configs
   tasks:
     - name: Copy rlcone config
       block:
@@ -88,8 +93,6 @@
             owner: iresh
             group: iresh
             mode: '660'
-      tags:
-        - config-files
     - name: Copy tmux config
       copy:
         src: ~/.tmux.conf
@@ -97,6 +100,21 @@
         owner: iresh
         group: iresh
         mode: '660'
+    - name: Vim config
+      block:
+        - name: clone configs repo
+          git:
+            repo: https://github.com/IreshMM/iresh-s-configs.git
+            dest: /home/iresh/iresh-s-configs
+            version: master
+            single_branch: yes
+        - name: Link .vimrc to repo's vimrc
+          ansible.builtin.file:
+            src: /home/iresh/iresh-s-configs/vim/vimrc
+            dest: /home/iresh/.vimrc
+            state: link
+            owner: iresh
+            group: iresh
 
 - name: Ansible KVM Role
   hosts: all
