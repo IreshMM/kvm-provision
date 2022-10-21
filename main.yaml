@@ -71,7 +71,7 @@
         state: latest
         user_install: no
 
-- name: Copy config files
+- name: Copy config files and do configuration
   hosts: all
   become: yes
   become_user: iresh
@@ -123,6 +123,16 @@
       ansible.builtin.lineinfile:
         path: ~/.profile
         line: export EDITOR=vim
+    - name: Git config user
+      community.general.git_config:
+        scope: global
+        name: "{{ item['name'] }}"
+        value: "{{ item['value'] }}"
+      loop:
+        - name: user.email
+          value: socialexpz1@gmail.com
+        - name: user.name
+          value: Iresh Dissanayaka
 
 - name: Ansible KVM Role
   hosts: all
