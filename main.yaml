@@ -134,6 +134,21 @@
         - name: user.name
           value: Iresh Dissanayaka
 
+
+- name: Install apicup
+  hosts: all
+  tags:
+    - apicup
+  tasks:
+    - name: Copy apicup executable to /usr/local/bin
+      copy:
+        remote_src: yes
+        src: /home/iresh/apic-files/apicup/linux-apicup
+        dest: /usr/local/bin/apicup
+        owner: root
+        group: root
+        mode: '755'
+
 - name: Ansible KVM Role
   hosts: all
   roles:
