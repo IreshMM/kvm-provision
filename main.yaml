@@ -53,7 +53,7 @@
   tags:
     - packages
   pre_tasks:
-    - name: Update package cache
+    - name: Upgrade existing packages
       apt:
         name: '*'
         state: latest
@@ -65,6 +65,7 @@
           - aria2
           - rclone
           - tree
+          - genisoimage
     - name: Mkpasswd gem package
       community.general.gem:
         name: mkpasswd
