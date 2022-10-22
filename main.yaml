@@ -163,3 +163,9 @@
   hosts: all
   roles:
     - role: ansible-kvm
+  post_tasks:
+    - name: Add user iresh to the group libvirt
+      user:
+        name: iresh
+        groups: libvirt
+        append: true
