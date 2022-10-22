@@ -66,11 +66,20 @@
           - rclone
           - tree
           - genisoimage
+          - python3-pip
+    - name: Miscellaneous pip packages
+      ansible.builtin.pip:
+        name:
+          - yq
+          - yglu
+          - j2cli[yaml]
+        executable: pip3
     - name: Mkpasswd gem package
       community.general.gem:
         name: mkpasswd
         state: latest
         user_install: no
+    
 
 - name: Copy config files and do configuration
   hosts: all
