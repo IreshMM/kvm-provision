@@ -145,6 +145,41 @@
         - name: user.name
           value: Iresh Dissanayaka
 
+- name: Download APIC files from one-drive
+  hosts: all
+  become: yes
+  become_user: iresh
+  tags:
+    - apic-files
+  tasks:
+    - name: Download APIC files using rclone
+      command: /usr/bin/rclone -c copy -P corporate-onedrive:apic-files /home/iresh/apic-files
+      tags:
+        - download-apic-files
+    - name: Move cloud images to the pool directory
+      become_user: root
+      shell: |
+        mv /home/iresh/apic-files/cloud-images/* /data/cloud-images
+        chown -R libvirt-qemu:kvm /data/cloud-images
+    - name: Extract shared devspace.zip
+      unarchive:
+        src: ~/apic-files/shared-devspace.zip
+        dest: '~'
+        remote_src: yes
+        creates: ~/shared-devspace
+    - name: Install apic toolkit
+      become_user: root
+      unarchive:
+        remote_src: yes
+        src: /home/iresh/apic-files/toolkit-linux.tgz
+        dest: /usr/local/bin
+        owner: root
+        group: root
+        mode: '755'
+        extra_opts:
+          - --transform
+          - 's/apic-slim/apic/'
+
 
 - name: Install apicup
   hosts: all
