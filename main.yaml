@@ -1,27 +1,27 @@
-# - name: Upgrade ubuntu to the latest release
-#   hosts: all
-#   tasks: 
-#     - name: Perform dist upgrade | packages
-#       ansible.builtin.apt:
-#         upgrade: dist
-#         update_cache: yes
-#       notify:
-#         - reboot-server
-#     - name: Upgrade dist to the latest release
-#       command: do-release-upgrade -f DistUpgradeViewNonInteractive
-#       register: dist_upgrade_out
-#       when: >
-#         (ansible_distribution == "Ubuntu" and
-#         ansible_distribution_version <= "20.04")
-#       notify:
-#         - reboot-server
-#     - debug: output=dist_upgrade_out.stdout_lines
-#       when: >
-#         (ansible_distribution == "Ubuntu" and
-#         ansible_distribution_version <= "20.04")
-#   handlers:
-#     - name: reboot-server
-#       ansible.builtin.reboot:
+- name: Upgrade ubuntu to the latest release
+  hosts: all
+  tags:
+    - release-upgrade
+  tasks: 
+    - name: Perform dist upgrade | packages
+      ansible.builtin.apt:
+        upgrade: dist
+    - name: Upgrade dist to the latest release
+      command: do-release-upgrade -f DistUpgradeViewNonInteractive
+      register: dist_upgrade_out
+      when: >
+        (ansible_distribution == "Ubuntu" and
+        ansible_distribution_version <= "20.04")
+      notify:
+        - reboot-server
+    - debug:
+        msg: dist_upgrade_out.stdout_lines
+      when: >
+        (ansible_distribution == "Ubuntu" and
+        ansible_distribution_version <= "20.04")
+  handlers:
+    - name: reboot-server
+      ansible.builtin.reboot:
 
 
 - name: Create user
