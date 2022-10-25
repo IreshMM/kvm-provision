@@ -68,13 +68,28 @@
           - genisoimage
           - python3-pip
           - ansible
+          - expect
     - name: Miscellaneous pip packages
-      ansible.builtin.pip:
-        name:
-          - yq
-          - yglu
-          - j2cli[yaml]
-        executable: pip3
+      block:
+        - name: Packages from public repositories
+          ansible.builtin.pip:
+            name:
+              - yq
+              - yglu
+              - j2cli[yaml]
+            executable: pip3
+        - name: Clone github repository for dp-file-uploader
+          git:
+            repo: https://github.com/IBM/dp-file-uploader.git
+            dest: /tmp/dp-file-uploader
+            version: master
+            single_branch: yes
+        - name: Install dp-file-uploader
+          ansible.builtin.pip:
+            chdir: /tmp/dp-file-uploader
+            name: '.'
+            executable: pip3
+          
     - name: Mkpasswd gem package
       community.general.gem:
         name: mkpasswd
@@ -194,6 +209,7 @@
         owner: root
         group: root
         mode: '755'
+
 
 - name: Ansible KVM Role
   hosts: all
