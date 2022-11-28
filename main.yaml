@@ -160,6 +160,17 @@
         - name: user.name
           value: Iresh Dissanayaka
 
+- name: Ansible KVM Role
+  hosts: all
+  roles:
+    - role: ansible-kvm
+  post_tasks:
+    - name: Add user iresh to the group libvirt
+      user:
+        name: iresh
+        groups: libvirt
+        append: true
+
 - name: Download APIC files from one-drive
   hosts: all
   become: yes
@@ -209,15 +220,3 @@
         owner: root
         group: root
         mode: '755'
-
-
-- name: Ansible KVM Role
-  hosts: all
-  roles:
-    - role: ansible-kvm
-  post_tasks:
-    - name: Add user iresh to the group libvirt
-      user:
-        name: iresh
-        groups: libvirt
-        append: true
