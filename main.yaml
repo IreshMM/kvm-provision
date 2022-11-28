@@ -27,6 +27,8 @@
 - name: Create user
   hosts: all
   become: true
+  tags:
+    - user
   tasks:
     - name: Create user iresh
       user:
@@ -35,10 +37,19 @@
         append: true
         state: present
         shell: /bin/bash
-        generate_ssh_key: yes
-        ssh_key_bits: 4096
-        ssh_key_file: .ssh/id_rsa
         password: "{{ 'admin' |  password_hash('sha512')}}"
+    - name: Copy generated SSH identity
+      copy:
+        src: '{{ item.name }}'
+        dest: /home/iresh/.ssh/
+        owner: iresh
+        group: iresh
+        mode: '{{ item.mode }}'
+      loop:
+        - name: id_rsa
+          mode: 'u=rw,g=,o='
+        - name: id_rsa.pub
+          mode: 'u=rw,g=r,o=r'
     - name: Copy root authorized_keys
       copy:
         remote_src: yes
